@@ -323,7 +323,7 @@ st.markdown(f"""
     <div class="hero-badge">GIZI · {period_text}</div>
     <div>
         <p class="hero-title">Dashboard Analisis Status Gizi Balita</p>
-        <p class="hero-sub">Tampilan difokuskan untuk menjawab 5 pertanyaan analisis tanpa menampilkan data mentah</p>
+        <p class="hero-sub">  </p>
     </div>
 </div>
 """, unsafe_allow_html=True)
