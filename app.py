@@ -12,9 +12,7 @@ try:
 except Exception:
     SCIPY_OK = False
 
-# ============================================================
-# CONFIG
-# ============================================================
+
 st.set_page_config(
     page_title="Dashboard Gizi Balita 2021–2024",
     page_icon="📊",
@@ -46,9 +44,6 @@ WFH_LABEL_MAP = {
     "Obese": "Obesitas",
 }
 
-# ============================================================
-# STYLE
-# ============================================================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
@@ -91,9 +86,6 @@ div[data-testid="stMarkdownContainer"] p { color:#c9d1d9; }
 </style>
 """, unsafe_allow_html=True)
 
-# ============================================================
-# HELPERS
-# ============================================================
 def fmt_int(x):
     return f"{int(x):,}".replace(",", ".")
 
@@ -176,9 +168,6 @@ def L(fig, h=370, title=""):
     fig.update_layout(height=h, title_text=title, **LAYOUT)
     return fig
 
-# ============================================================
-# LOAD & PREPROCESS
-# ============================================================
 with st.sidebar:
     st.markdown('<div class="sidebar-hdr">Sumber Data</div>', unsafe_allow_html=True)
 
@@ -312,9 +301,6 @@ if data.empty:
     st.warning("Data kosong setelah filter.")
     st.stop()
 
-# ============================================================
-# GLOBAL KPI
-# ============================================================
 total = len(data)
 normal_bbu = int(data["WFA_Status"].eq("Normal").sum())
 under = int(data["Is_Undernutrition"].sum())
@@ -352,9 +338,6 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# ============================================================
-# TABS — FOKUS 5 PERTANYAAN
-# ============================================================
 tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "RINGKASAN",
     "BB/U",
@@ -364,9 +347,6 @@ tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "WASTING"
 ])
 
-# ============================================================
-# RINGKASAN
-# ============================================================
 with tab0:
     section("Ringkasan Lengkap 5 Pertanyaan")
 
@@ -425,9 +405,6 @@ with tab0:
     top_bbu = data["Status_BBU_Label"].value_counts().idxmax()
     answer(f"<b>Ringkasan:</b> Dataset final berisi <b>{fmt_int(total)}</b> balita. Status BB/U paling dominan adalah <b>{top_bbu}</b>. Prevalensi stunting sebesar <b>{fmt_pct(stunted_pct)}</b>, wasting sebesar <b>{fmt_pct(wasting_pct)}</b>, dan under/malnutrisi sebesar <b>{fmt_pct(under_pct)}</b>.")
 
-# ============================================================
-# P1
-# ============================================================
 with tab1:
     section("Pertanyaan 1 · Bagaimana distribusi status gizi berdasarkan BB/U?")
     c1, c2 = st.columns([2, 3], gap="medium")
@@ -453,9 +430,6 @@ with tab1:
     under_sum = int(under_row["Jumlah"].sum()) if not under_row.empty else 0
     answer(f"<b>Jawaban 1:</b> Status BB/U paling banyak adalah <b>{top_bbu['Status BB/U']}</b> sebanyak <b>{fmt_int(top_bbu['Jumlah'])}</b> balita ({top_bbu['Persentase']:.1f}%). Kelompok kurang gizi dan malnutrisi berjumlah <b>{fmt_int(under_sum)}</b> balita ({under_sum/total*100:.1f}%).")
 
-# ============================================================
-# P2
-# ============================================================
 with tab2:
     section("Pertanyaan 2 · Apakah status gizi berbeda berdasarkan gender?")
     c1, c2 = st.columns(2, gap="medium")
@@ -525,9 +499,6 @@ with tab2:
     else:
         answer("<b>Jawaban 2:</b> Grafik gender sudah tersedia, tetapi uji statistik belum dapat ditampilkan karena library scipy belum tersedia atau variasi gender tidak cukup.")
 
-# ============================================================
-# P3
-# ============================================================
 with tab3:
     section("Pertanyaan 3 · Pada usia berapa rata-rata Z-Score TB/U paling rendah?")
     c1, c2 = st.columns(2, gap="medium")
@@ -569,9 +540,6 @@ with tab3:
     min_month = monthly_hfa.loc[monthly_hfa["ZScore_HA"].idxmin()]
     answer(f"<b>Jawaban 3:</b> Kelompok usia dengan rata-rata Z-Score TB/U terendah adalah <b>{min_group['Age_Group']}</b> dengan nilai <b>{min_group['ZScore_HA']:.2f}</b>. Jika dilihat per bulan, titik terendah berada pada usia sekitar <b>{int(min_month['Age_Month'])} bulan</b> dengan nilai <b>{min_month['ZScore_HA']:.2f}</b>.")
 
-# ============================================================
-# P4
-# ============================================================
 with tab4:
     section("Pertanyaan 4 · Bagaimana tren berat badan dan tinggi badan berdasarkan usia?")
     c1, c2 = st.columns(2, gap="medium")
@@ -612,9 +580,6 @@ with tab4:
     corr_height = data["Age_Month"].corr(data["Height"])
     answer(f"<b>Jawaban 4:</b> Berat badan dan tinggi badan cenderung meningkat seiring bertambahnya usia. Korelasi usia dengan berat badan adalah <b>{corr_weight:.2f}</b>, sedangkan korelasi usia dengan tinggi badan adalah <b>{corr_height:.2f}</b>.")
 
-# ============================================================
-# P5
-# ============================================================
 with tab5:
     section("Pertanyaan 5 · Bagaimana prevalensi wasting dan kelompok paling berisiko?")
     st.markdown(f"""
