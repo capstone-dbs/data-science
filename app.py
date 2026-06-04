@@ -12,15 +12,13 @@ try:
 except Exception:
     SCIPY_OK = False
 
-
 st.set_page_config(
     page_title="Dashboard Gizi Balita 2021–2024",
-    page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-DATA_PATH = Path(__file__).parent / "overlldata.csv"
+DATA_PATH = Path(__file__).parent / "overlldata.xlsx"
 
 AGE_ORDER = [
     "0-12 bulan", "13-24 bulan", "25-36 bulan",
@@ -43,6 +41,7 @@ WFH_LABEL_MAP = {
     "Very Thin": "Sangat Kurus",
     "Obese": "Obesitas",
 }
+
 
 st.markdown("""
 <style>
@@ -168,15 +167,16 @@ def L(fig, h=370, title=""):
     fig.update_layout(height=h, title_text=title, **LAYOUT)
     return fig
 
+
 with st.sidebar:
     st.markdown('<div class="sidebar-hdr">Sumber Data</div>', unsafe_allow_html=True)
 
 if not DATA_PATH.exists():
     st.error(f"File tidak ditemukan: `{DATA_PATH.name}`")
-    st.info("Taruh `overlldata.csv` satu folder dengan `app.py`.")
+    st.info("Taruh `overlldata.xlsx` satu folder dengan `app.py`.")
     st.stop()
 
-raw = pd.read_csv(DATA_PATH)
+raw = pd.read_excel(DATA_PATH)
 df = raw.copy()
 df.columns = [" ".join(str(c).strip().split()) for c in df.columns]
 
@@ -228,7 +228,6 @@ df["Gender"] = df["Gender"].astype(str).str.strip().replace({
 for col in ["WFA_Status", "HFA_Status", "WFH_Status"]:
     df[col] = df[col].astype(str).str.strip()
 
-# Cleaning dilakukan di belakang layar agar tampilan fokus ke 5 pertanyaan, bukan ke data mentah.
 df = df.dropna(subset=required).copy()
 invalid_condition = (
     (df["Weight"] > 40) |
@@ -301,6 +300,7 @@ if data.empty:
     st.warning("Data kosong setelah filter.")
     st.stop()
 
+
 total = len(data)
 normal_bbu = int(data["WFA_Status"].eq("Normal").sum())
 under = int(data["Is_Undernutrition"].sum())
@@ -323,7 +323,7 @@ st.markdown(f"""
     <div class="hero-badge">GIZI · {period_text}</div>
     <div>
         <p class="hero-title">Dashboard Analisis Status Gizi Balita</p>
-        <p class="hero-sub"> </p>
+        <p class="hero-sub">Tampilan difokuskan untuk menjawab 5 pertanyaan analisis tanpa menampilkan data mentah</p>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -347,16 +347,17 @@ tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "WASTING"
 ])
 
+
 with tab0:
-    section("Ringkasan Lengkap 5 Pertanyaan")
+    section("Ringkasan Analisis Gizi")
 
     c1, c2, c3 = st.columns(3, gap="medium")
     with c1:
         st.markdown('<div class="chart-card">', unsafe_allow_html=True)
         temp = data["Status_BBU_Label"].value_counts().reset_index()
         temp.columns = ["Status", "Jumlah"]
-        fig = px.pie(temp, names="Status", values="Jumlah", hole=0.55, title="P1 · Komposisi BB/U")
-        fig.update_traces(textinfo="percent+label", marker=dict(line=dict(color="#0d1117", width=2)))
+        fig = px.pie(temp, names="Status", values="Jumlah", hole=0.55, title="Komposisi BB/U")
+        fig.update_traces(textinfo="percent", marker=dict(line=dict(color="#0d1117", width=2)))
         st.plotly_chart(L(fig, h=320), use_container_width=True, config={"displayModeBar": False})
         st.markdown('</div>', unsafe_allow_html=True)
     with c2:
@@ -364,15 +365,15 @@ with tab0:
         temp = data["Status_TBU_Label"].value_counts().reset_index()
         temp.columns = ["Status", "Jumlah"]
         fig = px.pie(temp, names="Status", values="Jumlah", hole=0.55, title="Komposisi TB/U")
-        fig.update_traces(textinfo="percent+label", marker=dict(line=dict(color="#0d1117", width=2)))
+        fig.update_traces(textinfo="percent", marker=dict(line=dict(color="#0d1117", width=2)))
         st.plotly_chart(L(fig, h=320), use_container_width=True, config={"displayModeBar": False})
         st.markdown('</div>', unsafe_allow_html=True)
     with c3:
         st.markdown('<div class="chart-card">', unsafe_allow_html=True)
         temp = data["Status_BBTB_Label"].value_counts().reset_index()
         temp.columns = ["Status", "Jumlah"]
-        fig = px.pie(temp, names="Status", values="Jumlah", hole=0.55, title="P5 · Komposisi BB/TB")
-        fig.update_traces(textinfo="percent+label", marker=dict(line=dict(color="#0d1117", width=2)))
+        fig = px.pie(temp, names="Status", values="Jumlah", hole=0.55, title="Komposisi BB/TB")
+        fig.update_traces(textinfo="percent", marker=dict(line=dict(color="#0d1117", width=2)))
         st.plotly_chart(L(fig, h=320), use_container_width=True, config={"displayModeBar": False})
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -405,8 +406,9 @@ with tab0:
     top_bbu = data["Status_BBU_Label"].value_counts().idxmax()
     answer(f"<b>Ringkasan:</b> Dataset final berisi <b>{fmt_int(total)}</b> balita. Status BB/U paling dominan adalah <b>{top_bbu}</b>. Prevalensi stunting sebesar <b>{fmt_pct(stunted_pct)}</b>, wasting sebesar <b>{fmt_pct(wasting_pct)}</b>, dan under/malnutrisi sebesar <b>{fmt_pct(under_pct)}</b>.")
 
+
 with tab1:
-    section("Pertanyaan 1 · Bagaimana distribusi status gizi berdasarkan BB/U?")
+    section("Distribusi Status Gizi BB/U")
     c1, c2 = st.columns([2, 3], gap="medium")
     bbu = data["Status_BBU_Label"].value_counts().reset_index()
     bbu.columns = ["Status BB/U", "Jumlah"]
@@ -415,7 +417,7 @@ with tab1:
     with c1:
         st.markdown('<div class="chart-card">', unsafe_allow_html=True)
         fig = px.pie(bbu, names="Status BB/U", values="Jumlah", hole=0.55, title="Komposisi Status BB/U")
-        fig.update_traces(textinfo="percent+label", marker=dict(line=dict(color="#0d1117", width=2)))
+        fig.update_traces(textinfo="percent", marker=dict(line=dict(color="#0d1117", width=2)))
         st.plotly_chart(L(fig, h=390), use_container_width=True, config={"displayModeBar": False})
         st.markdown('</div>', unsafe_allow_html=True)
     with c2:
@@ -428,10 +430,10 @@ with tab1:
     top_bbu = bbu.iloc[0]
     under_row = bbu[bbu["Status BB/U"].isin(["Kurang Gizi", "Malnutrisi"])]
     under_sum = int(under_row["Jumlah"].sum()) if not under_row.empty else 0
-    answer(f"<b>Jawaban 1:</b> Status BB/U paling banyak adalah <b>{top_bbu['Status BB/U']}</b> sebanyak <b>{fmt_int(top_bbu['Jumlah'])}</b> balita ({top_bbu['Persentase']:.1f}%). Kelompok kurang gizi dan malnutrisi berjumlah <b>{fmt_int(under_sum)}</b> balita ({under_sum/total*100:.1f}%).")
+    answer(f"Status BB/U paling banyak adalah <b>{top_bbu['Status BB/U']}</b> sebanyak <b>{fmt_int(top_bbu['Jumlah'])}</b> balita ({top_bbu['Persentase']:.1f}%). Kelompok kurang gizi dan malnutrisi berjumlah <b>{fmt_int(under_sum)}</b> balita ({under_sum/total*100:.1f}%).")
 
 with tab2:
-    section("Pertanyaan 2 · Apakah status gizi berbeda berdasarkan gender?")
+    section("Status Gizi Berdasarkan Gender")
     c1, c2 = st.columns(2, gap="medium")
     with c1:
         st.markdown('<div class="chart-card">', unsafe_allow_html=True)
@@ -495,12 +497,13 @@ with tab2:
 
         sig = chi_df[chi_df["p-value"] < 0.05]["Indikator"].tolist() if not chi_df.empty else []
         sig_text = ", ".join(sig) if sig else "tidak ada indikator yang signifikan"
-        answer(f"<b>Jawaban 2:</b> Berdasarkan uji Chi-Square, <b>{sig_text}</b> pada batas p-value &lt; 0,05. Grafik proporsi memperlihatkan perbandingan risiko gizi antara laki-laki dan perempuan.")
+        answer(f"Berdasarkan uji Chi-Square, <b>{sig_text}</b> pada batas p-value &lt; 0,05. Grafik proporsi memperlihatkan perbandingan risiko gizi antara laki-laki dan perempuan.")
     else:
-        answer("<b>Jawaban 2:</b> Grafik gender sudah tersedia, tetapi uji statistik belum dapat ditampilkan karena library scipy belum tersedia atau variasi gender tidak cukup.")
+        answer("Grafik gender sudah tersedia, tetapi uji statistik belum dapat ditampilkan karena library scipy belum tersedia atau variasi gender tidak cukup.")
+
 
 with tab3:
-    section("Pertanyaan 3 · Pada usia berapa rata-rata Z-Score TB/U paling rendah?")
+    section("Z-Score TB/U Berdasarkan Usia")
     c1, c2 = st.columns(2, gap="medium")
     hfa_age = data.groupby("Age_Group", observed=True, as_index=False)["ZScore_HA"].mean().sort_values("Age_Group")
     monthly_hfa = data.groupby("Age_Month", as_index=False)["ZScore_HA"].mean().sort_values("Age_Month")
@@ -538,10 +541,10 @@ with tab3:
 
     min_group = hfa_age.loc[hfa_age["ZScore_HA"].idxmin()]
     min_month = monthly_hfa.loc[monthly_hfa["ZScore_HA"].idxmin()]
-    answer(f"<b>Jawaban 3:</b> Kelompok usia dengan rata-rata Z-Score TB/U terendah adalah <b>{min_group['Age_Group']}</b> dengan nilai <b>{min_group['ZScore_HA']:.2f}</b>. Jika dilihat per bulan, titik terendah berada pada usia sekitar <b>{int(min_month['Age_Month'])} bulan</b> dengan nilai <b>{min_month['ZScore_HA']:.2f}</b>.")
+    answer(f"Kelompok usia dengan rata-rata Z-Score TB/U terendah adalah <b>{min_group['Age_Group']}</b> dengan nilai <b>{min_group['ZScore_HA']:.2f}</b>. Jika dilihat per bulan, titik terendah berada pada usia sekitar <b>{int(min_month['Age_Month'])} bulan</b> dengan nilai <b>{min_month['ZScore_HA']:.2f}</b>.")
 
 with tab4:
-    section("Pertanyaan 4 · Bagaimana tren berat badan dan tinggi badan berdasarkan usia?")
+    section("Tren Berat Badan dan Tinggi Badan")
     c1, c2 = st.columns(2, gap="medium")
     monthly_growth = data.groupby("Age_Month", as_index=False).agg(Berat_Badan=("Weight", "mean"), Tinggi_Badan=("Height", "mean")).sort_values("Age_Month")
     age_growth = data.groupby("Age_Group", observed=True, as_index=False).agg(Berat_Badan=("Weight", "mean"), Tinggi_Badan=("Height", "mean"), BMI=("BMI", "mean")).sort_values("Age_Group")
@@ -578,10 +581,11 @@ with tab4:
 
     corr_weight = data["Age_Month"].corr(data["Weight"])
     corr_height = data["Age_Month"].corr(data["Height"])
-    answer(f"<b>Jawaban 4:</b> Berat badan dan tinggi badan cenderung meningkat seiring bertambahnya usia. Korelasi usia dengan berat badan adalah <b>{corr_weight:.2f}</b>, sedangkan korelasi usia dengan tinggi badan adalah <b>{corr_height:.2f}</b>.")
+    answer(f"Berat badan dan tinggi badan cenderung meningkat seiring bertambahnya usia. Korelasi usia dengan berat badan adalah <b>{corr_weight:.2f}</b>, sedangkan korelasi usia dengan tinggi badan adalah <b>{corr_height:.2f}</b>.")
+
 
 with tab5:
-    section("Pertanyaan 5 · Bagaimana prevalensi wasting dan kelompok paling berisiko?")
+    section("Prevalensi Wasting dan Kelompok Risiko")
     st.markdown(f"""
     <div class="metric-row-4">
         <div class="metric-box c-blue"><p class="metric-label">Wasting</p><p class="metric-value">{fmt_int(wasting)}</p><p class="metric-pct">{fmt_pct(wasting / total * 100)}</p></div>
@@ -625,7 +629,7 @@ with tab5:
         bbtb = data["Status_BBTB_Label"].value_counts().reset_index()
         bbtb.columns = ["Status BB/TB", "Jumlah"]
         fig = px.pie(bbtb, names="Status BB/TB", values="Jumlah", hole=0.55, title="Komposisi Status BB/TB")
-        fig.update_traces(textinfo="percent+label", marker=dict(line=dict(color="#0d1117", width=2)))
+        fig.update_traces(textinfo="percent", marker=dict(line=dict(color="#0d1117", width=2)))
         st.plotly_chart(L(fig, h=350), use_container_width=True, config={"displayModeBar": False})
         st.markdown('</div>', unsafe_allow_html=True)
     with c4:
@@ -642,4 +646,4 @@ with tab5:
         st.markdown('</div>', unsafe_allow_html=True)
 
     top_risk = wasting_age_gender.sort_values("Prevalensi (%)", ascending=False).iloc[0]
-    answer(f"<b>Jawaban 5:</b> Prevalensi wasting total adalah <b>{fmt_pct(wasting / total * 100)}</b>. Kelompok dengan prevalensi wasting tertinggi adalah <b>{top_risk['Gender_Label']} usia {top_risk['Age_Group']}</b>, yaitu sekitar <b>{top_risk['Prevalensi (%)']:.1f}%</b>.")
+    answer(f"Prevalensi wasting total adalah <b>{fmt_pct(wasting / total * 100)}</b>. Kelompok dengan prevalensi wasting tertinggi adalah <b>{top_risk['Gender_Label']} usia {top_risk['Age_Group']}</b>, yaitu sekitar <b>{top_risk['Prevalensi (%)']:.1f}%</b>.")
