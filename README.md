@@ -20,10 +20,8 @@ pip install -r requirements.txt
 
 3. Letakkan file data Excel di folder yang sama dengan `app.py`.
    Nama yang didukung otomatis:
-   - `overlldata.xlsx`
-   - `Overall Data.xlsx`
-   - `overall data.xlsx`
-   - `cleaned_data_gizi_balita_2023.csv`
+
+   - `overlldata.csv`
 
    Atau upload file langsung dari sidebar dashboard.
 
