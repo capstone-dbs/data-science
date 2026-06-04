@@ -176,7 +176,7 @@ if not DATA_PATH.exists():
     st.info("Taruh `overlldata.csv` satu folder dengan `app.py`.")
     st.stop()
 
-raw = pd.read_excel(DATA_PATH)
+raw = pd.read_csv(DATA_PATH)
 df = raw.copy()
 df.columns = [" ".join(str(c).strip().split()) for c in df.columns]
 
