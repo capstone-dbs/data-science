@@ -18,7 +18,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-DATA_PATH = Path(__file__).parent / "overlldata.xlsx"
+DATA_PATH = Path(__file__).parent / "overlldata.csv"
 
 AGE_ORDER = [
     "0-12 bulan", "13-24 bulan", "25-36 bulan",
@@ -173,10 +173,10 @@ with st.sidebar:
 
 if not DATA_PATH.exists():
     st.error(f"File tidak ditemukan: `{DATA_PATH.name}`")
-    st.info("Taruh `overlldata.xlsx` satu folder dengan `app.py`.")
+    st.info("Taruh `overlldata.csv` satu folder dengan `app.py`.")
     st.stop()
 
-raw = pd.read_excel(DATA_PATH)
+raw = pd.read_csv(DATA_PATH)
 df = raw.copy()
 df.columns = [" ".join(str(c).strip().split()) for c in df.columns]
 
