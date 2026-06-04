@@ -1,6 +1,6 @@
 # Dashboard Analisis Status Gizi Balita 2023
 
-Dashboard ini dibuat dari notebook `Analisis_Gizi_Balita_2023_Modern_Final_Markdown(1).ipynb`.
+Dashboard ini dibuat dari notebook `Analisis_Gizi_Balita_2023_Modern_Final_Markdown.ipynb`.
 Dashboard menjawab 5 pertanyaan analisis:
 
 1. Bagaimana distribusi status gizi balita berdasarkan indikator BB/U pada periode tahun 2021–2024?
